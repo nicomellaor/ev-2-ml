@@ -1,9 +1,9 @@
 random_seed: 42 
 task_type: 'classification' 
 
-data: # Cambiar
-  path: 'data/dataset.csv' 
-  target_col: 'mi_objetivo' 
+data:
+  path: 'data/data_cleaned.csv' 
+  target_col: 'satisfaction' 
   test_size: 0.2 
 
 preprocessing:
