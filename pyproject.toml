@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mlproject"
+version = "0.1.0"
+description = "Paquete CLI para pipelines de ML supervisados y no supervisados."
+readme = "README.md"
+requires-python = ">=3.9" 
+dependencies = [
+    "scikit-learn",
+    "pandas",
+    "typer[all]",
+    "PyYAML",
+    "joblib",
+    "matplotlib",
+    "seaborn",
+    "jinja2",
+]
+
+[project.scripts]
+ml-pipeline = "mlproject.cli:app"

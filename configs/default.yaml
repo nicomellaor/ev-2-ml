@@ -1,0 +1,42 @@
+random_seed: 42 
+task_type: 'classification' 
+
+data: # Cambiar
+  path: 'data/dataset.csv' 
+  target_col: 'mi_objetivo' 
+  test_size: 0.2 
+
+preprocessing:
+  use_pca: true 
+  pca_variance_target: 0.95 
+
+supervised:
+  cv_metric: 'roc_auc' 
+  cv_folds: 5 
+  random_search_iterations: 10 
+
+  models:
+    baseline: 
+      model_name: 'LogisticRegression'
+      params:
+        random_search_space:
+          C: [0.01, 0.1, 1, 10, 100]
+          solver: ['liblinear']
+        grid_search_space:
+          C: [0.1, 1, 10]
+          
+    random_forest:
+      model_name: 'RandomForestClassifier'
+      use_class_weight: true
+      params:
+        random_search_space:
+          n_estimators: [100, 200, 300]
+          max_depth: [5, 10, 20, null]
+          max_features: ['sqrt', 'log2']
+          min_samples_leaf: [1, 2, 4]
+        grid_search_space:
+          n_estimators: [100, 150]
+          max_depth: [5, 10]
+
+unsupervised:
+  k_range: [2, 3, 4, 5, 6, 7, 8]
