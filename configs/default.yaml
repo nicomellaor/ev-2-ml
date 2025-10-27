@@ -4,7 +4,37 @@ task_type: 'classification'
 data:
   path: 'data/data_cleaned.csv' 
   target_col: 'satisfaction' 
-  test_size: 0.2 
+  test_size: 0.2
+
+  schema:
+    numerical_cols:
+      - 'Age'
+      - 'Flight Distance'
+      - 'Inflight wifi service'
+      - 'Departure/Arrival time convenient'
+      - 'Ease of Online booking'
+      - 'Gate location'
+      - 'Food and drink'
+      - 'Online boarding'
+      - 'Seat comfort'
+      - 'Inflight entertainment'
+      - 'On-board service'
+      - 'Leg room service'
+      - 'Baggage handling'
+      - 'Checkin service'
+      - 'Inflight service'
+      - 'Cleanliness'
+      - 'Departure Delay in Minutes'
+      - 'Arrival Delay in Minutes'
+    categorical_cols:
+      - 'Gender'
+      - 'Customer Type'
+      - 'Type of Travel'
+      - 'Class'
+    
+    max_null_percentage: 0.3
+  
+  report_path: 'outputs/data_report.txt'
 
 preprocessing:
   use_pca: true 
