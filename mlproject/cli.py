@@ -56,27 +56,35 @@ def tune_supervised(config_path: Annotated[Path, typer.Option("--config", help="
         model = supervised.get_model(model_name, config)
         pipeline = pipelines.get_pipeline(preprocessor, model)
 
-        best_model = supervised.run_tuning(
+        best_model, best_params = supervised.run_tuning(
             pipeline=pipeline,
             X=X_train,
             y=y_train,
             model_config=model_config,
+            config=config,
             cv=cv_strategy,
             scoring=config['supervised']['cv_metric'],
             n_iter=config['supervised']['random_search_iterations'],
             random_state=random_seed
         )
 
+        main_metric = config['supervised']['cv_metric']
+
+        if config['task_type'] == 'classification':
+            report_metrics = [main_metric, 'balanced_accuracy', 'f1_weighted']
+        else:
+            report_metrics = [main_metric, 'neg_root_mean_squared_error', 'r2']
+        
         cv_metrics = supervised.get_cv_metrics(
             pipeline=best_model,
             X=X_train,
             y=y_train,
             cv=cv_strategy,
-            scoring=config['supervised']['cv_metrics']
+            scoring=report_metrics
         )
 
         test_metrics = supervised.evaluate_model_on_test(
-            model=best_model,
+            best_model=best_model,
             X_test=X_test,
             y_test=y_test,
             config=config
@@ -100,7 +108,7 @@ def tune_supervised(config_path: Annotated[Path, typer.Option("--config", help="
             "model_name": model_name,
             "cv_metrics": cv_metrics,
             "test_metrics": test_metrics,
-            "best_params" : best_model.get_params(),
+            "best_params" : best_params,
         }
 
     utils.save_run_metadata(run_metadata, Path(f"outputs/runs/{run_id}/run_metadata.json"))

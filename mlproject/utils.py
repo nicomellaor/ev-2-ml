@@ -2,6 +2,8 @@ import yaml
 import joblib
 import logging
 import json
+import numpy as np
+from datetime import datetime, date
 from pathlib import Path
 
 def load_config(config_path: Path) -> dict:
@@ -20,10 +22,20 @@ def load_artifact(file_path: Path) -> object:
 
 def save_run_metadata(metadata: dict, file_path: Path):
     print(f"Guardando metadatos (run.json) en {file_path}...")
+    try:
+        file_path.parent.mkdir(parents=True, exist_ok=True)
+    except Exception as e:
+        print(f"Error al crear el directorio {file_path.parent}: {e}")
+        return
     with open(file_path, 'w') as f:
-        json.dump(metadata, f, indent=4)
+        json.dump(metadata, f, indent=4, cls=NumpyJSONEncoder)
 
 def setup_logging(log_path: Path):
+    try:
+        log_path.parent.mkdir(parents=True, exist_ok=True)
+    except Exception as e:
+        print(f"Error al crear el directorio para logs {log_path.parent}: {e}")
+        return
     logging.basicConfig(
         level=logging.INFO,
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -33,3 +45,17 @@ def setup_logging(log_path: Path):
         ]
     )
     logging.info("Logging configurado.")
+
+class NumpyJSONEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, np.integer):
+            return int(obj)
+        elif isinstance(obj, np.floating):
+            return float(obj)
+        elif isinstance(obj, np.ndarray):
+            return obj.tolist()
+        elif isinstance(obj, Path):
+            return str(obj)
+        elif isinstance(obj, (datetime, date)):
+             return obj.isoformat()
+        return super(NumpyJSONEncoder, self).default(obj)

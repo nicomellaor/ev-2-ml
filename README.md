@@ -5,3 +5,4 @@
 
 ### Scripts por CLI
 - `python3 -m mlproject.cli data-summary --config configs/default.yaml`
+- `python3 -m mlproject.cli tune-supervised --config configs/default.yaml`

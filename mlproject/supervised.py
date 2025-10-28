@@ -17,41 +17,51 @@ def get_cv_strategy(config: dict) -> KFold | StratifiedKFold:
     else:
         return KFold(n_splits=n_splits, shuffle=True, random_state=random_state)
     
-def run_tuning(pipeline: Pipeline, X: pd.DataFrame, y: pd.Series, model_config: dict, cv: KFold | StratifiedKFold, scoring: str, n_iter: int, random_state: int = 42) -> BaseEstimator:
-    param_distributions = model_config['params']['random_search_space']
+def run_tuning(pipeline: Pipeline, X: pd.DataFrame, y: pd.Series, model_config: dict, config: dict, cv: KFold | StratifiedKFold, scoring: str, n_iter: int, random_state: int = 42) -> BaseEstimator:
+    best_estimator = pipeline
+    best_params = {}
+    
+    if config['supervised']['run_random_search']:
+        param_distributions = model_config['params']['random_search_space']
 
-    random_search = RandomizedSearchCV(
-        estimator=pipeline,
-        param_distributions=param_distributions,
-        n_iter=n_iter,
-        scoring=scoring,
-        cv=cv,
-        n_jobs=-1,
-        random_state=random_state
-    )
+        random_search = RandomizedSearchCV(
+            estimator=pipeline,
+            param_distributions=param_distributions,
+            n_iter=n_iter,
+            scoring=scoring,
+            cv=cv,
+            n_jobs=-1,
+            random_state=random_state
+        )
 
-    random_search.fit(X, y)
+        random_search.fit(X, y)
 
-    # print(f"Mejor score de validación (Randomized): {random_search.best_score_.round(4)}")
-    # print(f"Mejores hiperparámetros encontrados (Randomized): {random_search.best_params_}")
+        # print(f"Mejor score de validación (Randomized): {random_search.best_score_.round(4)}")
+        # print(f"Mejores hiperparámetros encontrados (Randomized): {random_search.best_params_}")
 
-    param_grid = model_config['params']['grid_search_space']
+        best_estimator = random_search.best_estimator_
+        best_params = random_search.best_params_
 
-    grid_search = GridSearchCV(
-        estimator=pipeline,
-        param_grid=param_grid,
-        scoring=scoring,
-        cv=cv,
-        n_jobs=-1
-    )
+    if config['supervised']['run_grid_search']:
+        param_grid = model_config['params']['grid_search_space']
 
-    grid_search.fit(X, y)
+        grid_search = GridSearchCV(
+            estimator=pipeline,
+            param_grid=param_grid,
+            scoring=scoring,
+            cv=cv,
+            n_jobs=-1
+        )
 
-    # print(f"Mejor score de validación (Grid): {grid_search.best_score_.round(4)}")
-    # print(f"Mejores hiperparámetros encontrados (Grid): {grid_search.best_params_}")
+        grid_search.fit(X, y)
 
-    return grid_search.best_estimator_
-    # return random_search.best_estimator_
+        # print(f"Mejor score de validación (Grid): {grid_search.best_score_.round(4)}")
+        # print(f"Mejores hiperparámetros encontrados (Grid): {grid_search.best_params_}")
+
+        best_estimator = grid_search.best_estimator_
+        best_params = grid_search.best_params_
+
+    return best_estimator, best_params
 
 def get_cv_metrics(pipeline: Pipeline, X: pd.DataFrame, y: pd.Series, cv: KFold | StratifiedKFold, scoring: list[str]) -> dict:
     scores = cross_validate(
@@ -90,17 +100,12 @@ def evaluate_model_on_test(best_model: BaseEstimator, X_test: pd.DataFrame, y_te
     y_pred = best_model.predict(X_test)
     y_proba = best_model.predict_proba(X_test)[:, 1] if config['task_type'] == 'classification' else None
 
-    report = classification_report(y_test, y_pred, output_dict=True)
-    roc_auc = roc_auc_score(y_test, y_proba) if y_proba is not None else None
-    balanced_accuracy = balanced_accuracy_score(y_test, y_pred)
-    f1_score = f1_score(y_test, y_pred)
-
     metrics = {}
-    if [config['task_type']] == 'classification':
-        metrics["classification_report"] = report
-        metrics["test_roc_auc"] = roc_auc
-        metrics["balanced_accuracy"] = balanced_accuracy
-        metrics["f1_score"] = f1_score
+    if config['task_type'] == 'classification':
+        metrics["classification_report"] = classification_report(y_test, y_pred, output_dict=True)
+        metrics["test_roc_auc"] = roc_auc_score(y_test, y_proba) if y_proba is not None else None
+        metrics["balanced_accuracy"] = balanced_accuracy_score(y_test, y_pred)
+        metrics["f1_score"] = f1_score(y_test, y_pred)
 
     else:
         metrics["root_mean_squared_error"] = root_mean_squared_error(y_test, y_pred)

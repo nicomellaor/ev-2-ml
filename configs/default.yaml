@@ -44,6 +44,8 @@ supervised:
   cv_metric: 'roc_auc' 
   cv_folds: 5 
   random_search_iterations: 10 
+  run_random_search: false
+  run_grid_search: true
 
   models:
     baseline: 
