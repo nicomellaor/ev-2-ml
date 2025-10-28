@@ -2,7 +2,7 @@ import pandas as pd
 from sklearn.model_selection import RandomizedSearchCV, GridSearchCV, KFold, StratifiedKFold
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import classification_report, roc_auc_score
+from sklearn.metrics import classification_report, roc_auc_score, balanced_accuracy_score, f1_score, root_mean_squared_error, r2_score
 from sklearn.base import BaseEstimator
 from sklearn.pipeline import Pipeline
 from sklearn.model_selection import cross_validate
@@ -32,8 +32,8 @@ def run_tuning(pipeline: Pipeline, X: pd.DataFrame, y: pd.Series, model_config: 
 
     random_search.fit(X, y)
 
-    print(f"Mejor score de validación (Randomized): {random_search.best_score_.round(4)}")
-    print(f"Mejores hiperparámetros encontrados (Randomized): {random_search.best_params_}")
+    # print(f"Mejor score de validación (Randomized): {random_search.best_score_.round(4)}")
+    # print(f"Mejores hiperparámetros encontrados (Randomized): {random_search.best_params_}")
 
     param_grid = model_config['params']['grid_search_space']
 
@@ -47,8 +47,8 @@ def run_tuning(pipeline: Pipeline, X: pd.DataFrame, y: pd.Series, model_config: 
 
     grid_search.fit(X, y)
 
-    print(f"Mejor score de validación (Grid): {grid_search.best_score_.round(4)}")
-    print(f"Mejores hiperparámetros encontrados (Grid): {grid_search.best_params_}")
+    # print(f"Mejor score de validación (Grid): {grid_search.best_score_.round(4)}")
+    # print(f"Mejores hiperparámetros encontrados (Grid): {grid_search.best_params_}")
 
     return grid_search.best_estimator_
     # return random_search.best_estimator_
@@ -72,7 +72,7 @@ def get_cv_metrics(pipeline: Pipeline, X: pd.DataFrame, y: pd.Series, cv: KFold 
         metrics[f"cv_{metric_name}_mean"] = mean_score
         metrics[f"cv_{metric_name}_std"] = std_score
         
-        print(f"Métrica {metric_name}: {mean_score:.4f} ± {std_score:.4f}")
+        # print(f"Métrica {metric_name}: {mean_score:.4f} ± {std_score:.4f}")
         
     return metrics
 
@@ -87,5 +87,23 @@ def get_model(model_name: str, config: dict) -> BaseEstimator:
         raise ValueError(f"Modelo no soportado: {model_name}")
     
 def evaluate_model_on_test(best_model: BaseEstimator, X_test: pd.DataFrame, y_test: pd.Series, config: dict) -> dict:
-    '''To-Do: Retornar métricas como classification_report, roc_auc_score y otros.'''
-    pass
+    y_pred = best_model.predict(X_test)
+    y_proba = best_model.predict_proba(X_test)[:, 1] if config['task_type'] == 'classification' else None
+
+    report = classification_report(y_test, y_pred, output_dict=True)
+    roc_auc = roc_auc_score(y_test, y_proba) if y_proba is not None else None
+    balanced_accuracy = balanced_accuracy_score(y_test, y_pred)
+    f1_score = f1_score(y_test, y_pred)
+
+    metrics = {}
+    if [config['task_type']] == 'classification':
+        metrics["classification_report"] = report
+        metrics["test_roc_auc"] = roc_auc
+        metrics["balanced_accuracy"] = balanced_accuracy
+        metrics["f1_score"] = f1_score
+
+    else:
+        metrics["root_mean_squared_error"] = root_mean_squared_error(y_test, y_pred)
+        metrics["r2_score"] = r2_score(y_test, y_pred)
+
+    return metrics

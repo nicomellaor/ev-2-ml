@@ -57,6 +57,4 @@ def split_data(df: pd.DataFrame, target_col: str, test_size: float, stratify: bo
 
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, stratify=stratify_col, random_state=random_state)
 
-    train_df = pd.concat([X_train, y_train], axis=1)
-    test_df = pd.concat([X_test, y_test], axis=1)
-    return train_df, test_df
+    return X_train, X_test, y_train, y_test
