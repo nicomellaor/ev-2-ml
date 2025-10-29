@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Reporte de Ejecución: {{ run_id }}</title>
+    <style>
+        body { font-family: sans-serif; margin: 20px; }
+        h1, h2 { color: #333; }
+        img { max-width: 400px; border: 1px solid #ddd; }
+        table { border-collapse: collapse; }
+        th, td { border: 1px solid #ccc; padding: 8px; }
+    </style>
+</head>
+<body>
+    <h1>Reporte de Ejecución de ML</h1>
+    <p><strong>ID de Ejecución:</strong> {{ run_id }}</p>
+    <p><strong>Fecha de Reporte:</strong> {{ generation_date }}</p>
+
+    {% for model_name, model_data in models.items() %}
+        
+        <h2>Modelo: {{ model_name }}</h2>
+
+        <h3>Métricas de Validación Cruzada (CV)</h3>
+        <table>
+            <tr>
+                <th>Métrica</th>
+                <th>Media</th>
+                <th>Std Dev</th>
+            </tr>
+            <tr>
+                <td>roc_auc</td>
+                <td>{{ model_data.cv_metrics.cv_roc_auc_mean | round(4) }}</td>
+                <td>{{ model_data.cv_metrics.cv_roc_auc_std | round(4) }}</td>
+            </tr>
+            </table>
+
+        <h3>Métricas en Test</h3>
+        <p><strong>ROC AUC (Test):</strong> {{ model_data.test_metrics.test_roc_auc | round(4) }}</p>
+        <p><strong>Accuracy Balanceada:</strong> {{ model_data.test_metrics.balanced_accuracy | round(4) }}</p>
+        
+        <h3>Gráficos de Test</h3>
+        <img src="{{ model_data.image_paths.confusion_matrix }}" alt="Matriz de Confusión">
+        <img src="{{ model_data.image_paths.roc_curve }}" alt="Curva ROC">
+        <img src="{{ model_data.image_paths.precision_recall_curve }}" alt="Curva Precisión-Recall">
+
+    {% endfor %}
+
+</body>
+</html>

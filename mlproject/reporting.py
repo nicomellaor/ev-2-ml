@@ -2,6 +2,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.metrics import ConfusionMatrixDisplay, RocCurveDisplay, PrecisionRecallDisplay
+from jinja2 import Environment, FileSystemLoader
 from pathlib import Path
 
 def plot_confusion_matrix(y_true, y_pred, output_path: Path):
@@ -32,4 +33,13 @@ def save_metrics_table(): pass
 
 def save_centroids_table(): pass
 
-def generate_html_report(): pass # jinja2
+def generate_html_report(context: dict, template_name: str, template_dir: Path, output_path: Path):
+    loader = FileSystemLoader(searchpath=template_dir)
+    env = Environment(loader=loader)
+    
+    template = env.get_template(template_name)
+    
+    html_content = template.render(context)
+    
+    with open(output_path, 'w', encoding='utf-8') as f:
+        f.write(html_content)

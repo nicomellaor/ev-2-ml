@@ -1,4 +1,5 @@
 import typer
+import json
 from datetime import datetime
 from pathlib import Path
 from typing_extensions import Annotated
@@ -90,7 +91,7 @@ def tune_supervised(config_path: Annotated[Path, typer.Option("--config", help="
             config=config
         )
 
-        output_dir = Path(f"outputs/run_{run_id}/{model_key}")
+        output_dir = Path(f"outputs/runs/{run_id}/{model_key}")
         output_dir.mkdir(parents=True, exist_ok=True)
 
         utils.save_artifact(best_model, output_dir / "best_model.joblib")
@@ -119,7 +120,45 @@ def tune_supervised(config_path: Annotated[Path, typer.Option("--config", help="
 def cluster_kmeans(config_path: Annotated[Path, typer.Option("--config", help="Ruta al archivo de configuración YAML")]): pass
 
 @app.command()
-def report(config_path: Annotated[Path, typer.Option("--run-id", help="ID de la ejecución para generar el reporte")]): pass
+def report(run_id: Annotated[Path, typer.Option("--run-id", help="ID de la ejecución para generar el reporte")]):
+    typer.echo("Generando reporte HTML de la ejecución...")
+
+    run_dir = Path(f"outputs/runs/{run_id}")
+    metadata_path = run_dir / "run_metadata.json"
+    template_dir = Path("templates/")
+    template_name = "report.html"
+    output_path = run_dir / "final_report.html"
+
+    if not metadata_path.exists():
+        typer.echo(f"No se encontró el archivo de metadatos en {metadata_path}")
+        raise typer.Exit(code=1)
+    
+    typer.echo(f"Cargando metadatos desde {metadata_path}...")
+    with open(metadata_path, 'r') as f:
+        context = json.load(f)
+
+    context['run_id'] = run_id
+    context['generation_date'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    for model_name in context['models'].keys():
+        context['models'][model_name]['image_paths'] = {
+            "confusion_matrix": f"{model_name}/confusion_matrix.png",
+            "roc_curve": f"{model_name}/roc_curve.png",
+            "precision_recall_curve": f"{model_name}/precision_recall_curve.png",
+            # Añadir K-means
+        }
+
+    try:
+        reporting.generate_html_report(
+            context=context,
+            template_name=template_name,
+            template_dir=template_dir,
+            output_path=output_path
+        )
+        typer.echo(f"Reporte HTML generado en {output_path}")
+    except Exception as e:
+        typer.echo(f"Error al generar el reporte HTML: {e}")
+        raise typer.Exit(code=1)
 
 if __name__ == "__main__":
     app()

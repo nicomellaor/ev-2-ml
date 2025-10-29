@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Reporte de Ejecución: 20251029_124409</title>
+    <style>
+        body { font-family: sans-serif; margin: 20px; }
+        h1, h2 { color: #333; }
+        img { max-width: 400px; border: 1px solid #ddd; }
+        table { border-collapse: collapse; }
+        th, td { border: 1px solid #ccc; padding: 8px; }
+    </style>
+</head>
+<body>
+    <h1>Reporte de Ejecución de ML</h1>
+    <p><strong>ID de Ejecución:</strong> 20251029_124409</p>
+    <p><strong>Fecha de Reporte:</strong> 2025-10-29 12:52:27</p>
+
+    
+        
+        <h2>Modelo: baseline</h2>
+
+        <h3>Métricas de Validación Cruzada (CV)</h3>
+        <table>
+            <tr>
+                <th>Métrica</th>
+                <th>Media</th>
+                <th>Std Dev</th>
+            </tr>
+            <tr>
+                <td>roc_auc</td>
+                <td>0.9124</td>
+                <td>0.0006</td>
+            </tr>
+            </table>
+
+        <h3>Métricas en Test</h3>
+        <p><strong>ROC AUC (Test):</strong> 0.9113</p>
+        <p><strong>Accuracy Balanceada:</strong> 0.8438</p>
+        
+        <h3>Gráficos de Test</h3>
+        <img src="baseline/confusion_matrix.png" alt="Matriz de Confusión">
+        <img src="baseline/roc_curve.png" alt="Curva ROC">
+        <img src="baseline/precision_recall_curve.png" alt="Curva Precisión-Recall">
+
+    
+        
+        <h2>Modelo: random_forest</h2>
+
+        <h3>Métricas de Validación Cruzada (CV)</h3>
+        <table>
+            <tr>
+                <th>Métrica</th>
+                <th>Media</th>
+                <th>Std Dev</th>
+            </tr>
+            <tr>
+                <td>roc_auc</td>
+                <td>0.9759</td>
+                <td>0.001</td>
+            </tr>
+            </table>
+
+        <h3>Métricas en Test</h3>
+        <p><strong>ROC AUC (Test):</strong> 0.9761</p>
+        <p><strong>Accuracy Balanceada:</strong> 0.9185</p>
+        
+        <h3>Gráficos de Test</h3>
+        <img src="random_forest/confusion_matrix.png" alt="Matriz de Confusión">
+        <img src="random_forest/roc_curve.png" alt="Curva ROC">
+        <img src="random_forest/precision_recall_curve.png" alt="Curva Precisión-Recall">
+
+    
+
+</body>
+</html>
