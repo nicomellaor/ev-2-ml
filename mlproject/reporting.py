@@ -23,15 +23,41 @@ def plot_precision_recall_curve(estimator, X_test, y_test, output_path: Path):
     plt.savefig(output_path)
     plt.close(fig)
 
-def plot_elbow_curve(): pass
+def plot_elbow_curve(inertia_values: list, k_range: list, output_path: Path):
+    fig, ax = plt.subplots()
+    ax.plot(k_range, inertia_values, marker='o')
+    ax.set_xlabel('Número de clusters (k)')
+    ax.set_ylabel('Inercia')
+    ax.set_title('Curva Elbow para KMeans')
+    plt.savefig(output_path)
+    plt.close(fig)
 
-def plot_kmeans_metrics(): pass
+def plot_kmeans_metrics(metrics_df: pd.DataFrame, path_prefix: Path):
+    sns.set_theme(style="whitegrid")
+    metric_names = ['silhouette', 'calinski_harabasz', 'davies_bouldin']
+    
+    for metric in metric_names:
+        fig, ax = plt.subplots()
+        sns.lineplot(data=metrics_df, x='k', y=metric, marker='o', ax=ax)
+        ax.set_title(f'Métrica {metric} vs Número de clusters (k)')
+        ax.set_xlabel('Número de clusters (k)')
+        ax.set_ylabel(metric)
+        plt.savefig(path_prefix / f'kmeans_{metric}_curve.png')
+        plt.close(fig)
 
-def plot_kmeans_pca_2d(): pass
+def plot_kmeans_pca_2d(pca_df: pd.DataFrame, path: Path):
+    fig, ax = plt.subplots()
+    sns.scatterplot(data=pca_df, x='PCA1', y='PCA2', hue='cluster', palette='Set2', ax=ax)
+    ax.set_title('Proyección PCA 2D de Clusters KMeans')
+    plt.savefig(path)
+    plt.close(fig)
 
-def save_metrics_table(): pass
+def save_metrics_table(metrics: dict, path: Path):
+    df = pd.DataFrame([metrics])
+    df.to_csv(path, index=False)
 
-def save_centroids_table(): pass
+def save_centroids_table(centroids_df: pd.DataFrame, path: Path):
+    centroids_df.to_csv(path, index=False)
 
 def generate_html_report(context: dict, template_name: str, template_dir: Path, output_path: Path):
     loader = FileSystemLoader(searchpath=template_dir)

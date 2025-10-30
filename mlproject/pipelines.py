@@ -4,6 +4,7 @@ from sklearn.impute import SimpleImputer
 from sklearn.compose import ColumnTransformer
 from sklearn.decomposition import PCA
 from sklearn.base import BaseEstimator
+from sklearn.cluster import KMeans
 
 def create_preprocessor(numerical_features: list[str], categorical_features: list[str], use_pca: bool = False, pca_variance_target: float = 0.95) -> Pipeline: 
     '''Crea el ColumnTransformer y el pipeline de preprocesamiento.'''
@@ -36,4 +37,12 @@ def get_pipeline(preprocessor: Pipeline, model: BaseEstimator) -> Pipeline:
     return Pipeline(steps=[
         ('preprocessor', preprocessor),
         ('model', model)
+    ])
+
+def get_kmeans_pipeline(preprocessor: Pipeline) -> Pipeline:
+    '''Devuelve un pipeline para KMeans con el preprocesador.'''
+    kmeans = KMeans(random_state=42, n_init=10)
+    return Pipeline(steps=[
+        ('preprocessor', preprocessor),
+        ('kmeans', kmeans)
     ])

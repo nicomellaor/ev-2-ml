@@ -21,3 +21,7 @@ dependencies = [
 
 [project.scripts]
 ml-pipeline = "mlproject.cli:app"
+
+
+[tool.setuptools.packages.find]
+include = ["mlproject"]

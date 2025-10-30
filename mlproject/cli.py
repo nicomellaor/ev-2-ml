@@ -1,5 +1,6 @@
 import typer
 import json
+import pandas as pd
 from datetime import datetime
 from pathlib import Path
 from typing_extensions import Annotated
@@ -117,7 +118,78 @@ def tune_supervised(config_path: Annotated[Path, typer.Option("--config", help="
     typer.echo(f"Ejecución {run_id} completada.")
 
 @app.command()
-def cluster_kmeans(config_path: Annotated[Path, typer.Option("--config", help="Ruta al archivo de configuración YAML")]): pass
+def cluster_kmeans(config_path: Annotated[Path, typer.Option("--config", help="Ruta al archivo de configuración YAML")]):
+    typer.echo("Iniciando clustering K-Means...")
+
+    config = utils.load_config(config_path)
+    random_seed = config['random_seed']
+    target_col = config['data']['target_col']
+
+    run_id = datetime.now().strftime("%Y%m%d_%H%M%S")
+    typer.echo(f"ID de la ejecución: {run_id}")
+
+    output_dir = Path(f"outputs/runs/{run_id}/kmeans")
+    output_dir.mkdir(parents=True, exist_ok=True)
+    utils.setup_logging(output_dir / "run.log")
+
+    typer.echo("Cargando y preparando el conjunto de datos...")
+    dataset_path = Path(config['data']['path'])
+    df = data.load_dataset(dataset_path)
+    X = df.drop(columns=[target_col])
+
+    numeric_features = config['data']['schema']['numerical_cols']
+    categorical_features = config['data']['schema']['categorical_cols']
+    preprocessor = pipelines.create_preprocessor(numeric_features, categorical_features, use_pca=False)
+    
+    typer.echo("Preprocesando los datos...")
+    X_processed = preprocessor.fit_transform(X)
+
+    try:
+        feature_names = preprocessor.get_feature_names_out().tolist()
+        X_processed_df = pd.DataFrame(X_processed, columns=feature_names)
+    except Exception:
+        X_processed_df = pd.DataFrame(X_processed)
+
+    typer.echo("Evaluando diferentes valores de k...")
+    k_range = config['unsupervised']['k_range']
+    metrics = unsupervised.evaluate_k_values(X_processed_df, k_range)
+    reporting.save_metrics_table(metrics, output_dir / "kmeans_metrics.csv")
+
+    typer.echo("Guardando gráficos de métricas K-Means...")
+    reporting.plot_kmeans_metrics(pd.DataFrame(metrics), output_dir)
+    inertia_values = metrics['inertia']
+    reporting.plot_elbow_curve(inertia_values, k_range, output_dir / "kmeans_elbow_curve.png")
+    reporting.plot_kmeans_metrics(pd.DataFrame(metrics), output_dir)
+
+    optimal_k = config['unsupervised']['k']
+    typer.echo(f"Entrenando K-Means con k={optimal_k}...")
+    kmeans_pipeline = pipelines.get_kmeans_pipeline(preprocessor)
+    kmeans_pipeline.named_steps['kmeans'].set_params(n_clusters=optimal_k, random_state=random_seed)
+    kmeans_pipeline.fit(X)
+
+    labels = kmeans_pipeline.named_steps['kmeans'].labels_
+
+    typer.echo("Calculando análisis de clústeres...")
+    cluster_sizes_df = unsupervised.get_cluster_sizes(labels)
+    reporting.save_centroids_table(cluster_sizes_df, output_dir / "kmeans_cluster_sizes.csv")
+    centroids_df = unsupervised.get_cluster_centroids(kmeans_pipeline, X.columns.tolist())
+    reporting.save_centroids_table(centroids_df, output_dir / "kmeans_centroids.csv")
+
+    typer.echo("Calculando proyección PCA 2D para visualización...")
+    pca_2d_df = unsupervised.get_pca_2d_projection(X_processed_df, labels)
+    reporting.plot_kmeans_pca_2d(pca_2d_df, output_dir / "kmeans_pca_2d.png")
+
+    run_metadata = {
+        "run_id": run_id,
+        "config": config,
+        "kmeans": {
+            "optimal_k": optimal_k,
+            "metrics": metrics
+        }
+    }
+    utils.save_run_metadata(run_metadata, output_dir / "run_metadata.json")
+    typer.echo("Metadatos de la ejecución guardados exitosamente.")
+    typer.echo(f"Ejecución {run_id} completada.")
 
 @app.command()
 def report(run_id: Annotated[Path, typer.Option("--run-id", help="ID de la ejecución para generar el reporte")]):
