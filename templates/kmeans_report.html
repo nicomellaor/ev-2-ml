@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Reporte de Clustering K-Means: {{ run_id }}</title>
+    <style>
+        body { font-family: sans-serif; margin: 20px; }
+        h1, h2, h3 { color: #333; }
+        img { max-width: 600px; border: 1px solid #ddd; margin-top: 10px; }
+        .dataframe { border-collapse: collapse; margin-top: 15px; }
+        .dataframe th, .dataframe td { border: 1px solid #ccc; padding: 8px; }
+        .dataframe th { background-color: #f2f2f2; }
+        .dataframe tbody tr:nth-child(even) { background-color: #f9f9f9; }
+    </style>
+</head>
+<body>
+    <h1>Reporte de Clustering K-Means</h1>
+    <p><strong>ID de Ejecución:</strong> {{ run_id }}</p>
+    <p><strong>Fecha de Reporte:</strong> {{ generation_date }}</p>
+
+    <h2>1. Evaluación de K</h2>
+    
+    <h3>Gráfico del Codo (Inercia vs. K)</h3>
+    <img src="{{ image_paths.elbow_curve }}" alt="Gráfico del Codo">
+    
+    <h3>Métricas de Evaluación de K</h3>
+    {{ tables.k_evaluation | safe }}
+
+    <h2>2. Análisis de Clústeres (K = {{ final_k }})</h2>
+
+    <h3>Proyección PCA 2D</h3>
+    <img src="{{ image_paths.pca_2d }}" alt="PCA 2D de Clústeres">
+
+    <h3>Tamaño de Clústeres</h3>
+    {{ tables.cluster_sizes | safe }}
+
+    <h3>Centroides de Clústeres</h3>
+    <p>(Valores escalados (z-score) o des-escalados, según lo reportado por la función)</p>
+    {{ tables.centroids | safe }}
+
+</body>
+</html>

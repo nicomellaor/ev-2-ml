@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Reporte de Clustering K-Means: 20251030_145838</title>
+    <style>
+        body { font-family: sans-serif; margin: 20px; }
+        h1, h2, h3 { color: #333; }
+        img { max-width: 600px; border: 1px solid #ddd; margin-top: 10px; }
+        .dataframe { border-collapse: collapse; margin-top: 15px; }
+        .dataframe th, .dataframe td { border: 1px solid #ccc; padding: 8px; }
+        .dataframe th { background-color: #f2f2f2; }
+        .dataframe tbody tr:nth-child(even) { background-color: #f9f9f9; }
+    </style>
+</head>
+<body>
+    <h1>Reporte de Clustering K-Means</h1>
+    <p><strong>ID de Ejecución:</strong> 20251030_145838</p>
+    <p><strong>Fecha de Reporte:</strong> 2025-10-30 15:23:25</p>
+
+    <h2>1. Evaluación de K</h2>
+    
+    <h3>Gráfico del Codo (Inercia vs. K)</h3>
+    <img src="kmeans_elbow_curve.png" alt="Gráfico del Codo">
+    
+    <h3>Métricas de Evaluación de K</h3>
+    <table border="1" class="dataframe dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>k</th>
+      <th>inertia</th>
+      <th>silhouette</th>
+      <th>calinski_harabasz</th>
+      <th>davies_bouldin</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>2</td>
+      <td>1594425.105</td>
+      <td>0.138</td>
+      <td>15227.932</td>
+      <td>2.422</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td>1477302.375</td>
+      <td>0.127</td>
+      <td>11929.679</td>
+      <td>2.420</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td>1377393.469</td>
+      <td>0.109</td>
+      <td>10794.054</td>
+      <td>2.358</td>
+    </tr>
+    <tr>
+      <td>5</td>
+      <td>1310551.199</td>
+      <td>0.112</td>
+      <td>9702.378</td>
+      <td>2.181</td>
+    </tr>
+    <tr>
+      <td>6</td>
+      <td>1253065.725</td>
+      <td>0.111</td>
+      <td>8977.078</td>
+      <td>2.115</td>
+    </tr>
+    <tr>
+      <td>7</td>
+      <td>1217586.181</td>
+      <td>0.106</td>
+      <td>8153.586</td>
+      <td>2.255</td>
+    </tr>
+    <tr>
+      <td>8</td>
+      <td>1184082.001</td>
+      <td>0.099</td>
+      <td>7564.968</td>
+      <td>2.282</td>
+    </tr>
+  </tbody>
+</table>
+
+    <h2>2. Análisis de Clústeres (K = 3)</h2>
+
+    <h3>Proyección PCA 2D</h3>
+    <img src="kmeans_pca_2d.png" alt="PCA 2D de Clústeres">
+
+    <h3>Tamaño de Clústeres</h3>
+    <table border="1" class="dataframe dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>Count</th>
+      <th>Percentage</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>24942</td>
+      <td>0.266338</td>
+    </tr>
+    <tr>
+      <td>43116</td>
+      <td>0.460405</td>
+    </tr>
+    <tr>
+      <td>25590</td>
+      <td>0.273257</td>
+    </tr>
+  </tbody>
+</table>
+
+    <h3>Centroides de Clústeres</h3>
+    <p>(Valores escalados (z-score) o des-escalados, según lo reportado por la función)</p>
+    <table border="1" class="dataframe dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>num__Age</th>
+      <th>num__Flight Distance</th>
+      <th>num__Inflight wifi service</th>
+      <th>num__Departure/Arrival time convenient</th>
+      <th>num__Ease of Online booking</th>
+      <th>num__Gate location</th>
+      <th>num__Food and drink</th>
+      <th>num__Online boarding</th>
+      <th>num__Seat comfort</th>
+      <th>num__Inflight entertainment</th>
+      <th>num__On-board service</th>
+      <th>num__Leg room service</th>
+      <th>num__Baggage handling</th>
+      <th>num__Checkin service</th>
+      <th>num__Inflight service</th>
+      <th>num__Cleanliness</th>
+      <th>num__Departure Delay in Minutes</th>
+      <th>num__Arrival Delay in Minutes</th>
+      <th>cat__Gender_Female</th>
+      <th>cat__Gender_Male</th>
+      <th>cat__Customer Type_Loyal Customer</th>
+      <th>cat__Customer Type_disloyal Customer</th>
+      <th>cat__Type of Travel_Business travel</th>
+      <th>cat__Type of Travel_Personal Travel</th>
+      <th>cat__Class_Business</th>
+      <th>cat__Class_Eco</th>
+      <th>cat__Class_Eco Plus</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>-0.466</td>
+      <td>-0.352</td>
+      <td>-0.274</td>
+      <td>0.011</td>
+      <td>-0.198</td>
+      <td>-0.033</td>
+      <td>-1.007</td>
+      <td>-0.739</td>
+      <td>-1.143</td>
+      <td>-1.017</td>
+      <td>-0.054</td>
+      <td>-0.076</td>
+      <td>0.118</td>
+      <td>-0.090</td>
+      <td>0.132</td>
+      <td>-1.104</td>
+      <td>0.005</td>
+      <td>0.030</td>
+      <td>0.456</td>
+      <td>0.544</td>
+      <td>0.674</td>
+      <td>0.326</td>
+      <td>0.526</td>
+      <td>0.474</td>
+      <td>0.260</td>
+      <td>0.648</td>
+      <td>0.091</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>0.152</td>
+      <td>0.270</td>
+      <td>0.250</td>
+      <td>0.078</td>
+      <td>0.190</td>
+      <td>0.034</td>
+      <td>0.434</td>
+      <td>0.431</td>
+      <td>0.546</td>
+      <td>0.742</td>
+      <td>0.575</td>
+      <td>0.452</td>
+      <td>0.539</td>
+      <td>0.260</td>
+      <td>0.549</td>
+      <td>0.537</td>
+      <td>-0.014</td>
+      <td>-0.049</td>
+      <td>0.506</td>
+      <td>0.494</td>
+      <td>0.879</td>
+      <td>0.121</td>
+      <td>0.793</td>
+      <td>0.207</td>
+      <td>0.703</td>
+      <td>0.254</td>
+      <td>0.043</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0.198</td>
+      <td>-0.111</td>
+      <td>-0.154</td>
+      <td>-0.142</td>
+      <td>-0.126</td>
+      <td>-0.026</td>
+      <td>0.252</td>
+      <td>-0.005</td>
+      <td>0.196</td>
+      <td>-0.257</td>
+      <td>-0.916</td>
+      <td>-0.688</td>
+      <td>-1.023</td>
+      <td>-0.350</td>
+      <td>-1.054</td>
+      <td>0.172</td>
+      <td>0.020</td>
+      <td>0.053</td>
+      <td>0.562</td>
+      <td>0.438</td>
+      <td>0.848</td>
+      <td>0.152</td>
+      <td>0.644</td>
+      <td>0.356</td>
+      <td>0.367</td>
+      <td>0.544</td>
+      <td>0.090</td>
+    </tr>
+  </tbody>
+</table>
+
+</body>
+</html>

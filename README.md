@@ -8,3 +8,4 @@
 - `python3 -m mlproject.cli tune-supervised --config configs/default.yaml`
 - `python3 -m mlproject.cli cluster-kmeans --config configs/default.yaml`
 - `python3 -m mlproject.cli report --run-id [run_id]`
+- `python3 -m mlproject.cli report-kmeans --run-id [run_id]`

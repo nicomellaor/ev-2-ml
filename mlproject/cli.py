@@ -217,7 +217,6 @@ def report(run_id: Annotated[Path, typer.Option("--run-id", help="ID de la ejecu
             "confusion_matrix": f"{model_name}/confusion_matrix.png",
             "roc_curve": f"{model_name}/roc_curve.png",
             "precision_recall_curve": f"{model_name}/precision_recall_curve.png",
-            # Añadir K-means
         }
 
     try:
@@ -231,6 +230,60 @@ def report(run_id: Annotated[Path, typer.Option("--run-id", help="ID de la ejecu
     except Exception as e:
         typer.echo(f"Error al generar el reporte HTML: {e}")
         raise typer.Exit(code=1)
+
+@app.command()
+def report_kmeans(run_id: Annotated[Path, typer.Option("--run-id", help="ID de la ejecución para generar el reporte")]):
+    typer.echo("Generando reporte HTML de la ejecución...")
+
+    run_dir = Path(f"outputs/runs/{run_id}/kmeans")
+    template_dir = Path("templates/")
+    template_name = "kmeans_report.html"
+    output_path = run_dir / "final_report.html"
+
+    if not run_dir.exists():
+        typer.echo(f"No se encontró el directorio de la ejecución en {run_dir}")
+        raise typer.Exit(code=1)
+    
+    typer.echo(f"Cargando archivos CSV...")
+    try:
+        metrics_df = pd.read_csv(run_dir / "kmeans_metrics.csv")
+        centroids_df = pd.read_csv(run_dir / "kmeans_centroids.csv")
+        cluster_sizes_df = pd.read_csv(run_dir / "kmeans_cluster_sizes.csv")
+    except Exception as e:
+        typer.echo(f"Error al cargar los archivos CSV: {e}")
+        raise typer.Exit(code=1)
+    
+    context = {}
+    context['run_id'] = run_id
+    context['generation_date'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    context['final_k'] = len(cluster_sizes_df)
+
+    context['image_paths'] = {
+        "elbow_curve": "kmeans_elbow_curve.png",
+        "silhouette_curve": "kmeans_silhouette_curve.png",
+        "calinski_harabasz_curve": "kmeans_calinski_harabasz_curve.png",
+        "davies_bouldin_curve": "kmeans_davies_bouldin_curve.png",
+        "pca_2d": "kmeans_pca_2d.png"
+    }
+
+    context['tables'] = {
+        'k_evaluation': metrics_df.to_html(classes="dataframe", index=False, float_format='%.3f'),
+        'centroids': centroids_df.to_html(classes="dataframe", float_format='%.3f'),
+        'cluster_sizes': cluster_sizes_df.to_html(classes="dataframe", index=False)
+    }
+
+    try:
+        reporting.generate_html_report(
+            context=context,
+            template_name=template_name,
+            template_dir=template_dir,
+            output_path=output_path
+        )
+        typer.echo(f"Reporte HTML generado en {output_path}")
+    except Exception as e:
+        typer.echo(f"Error al generar el reporte HTML: {e}")
+        raise typer.Exit(code=1)    
 
 if __name__ == "__main__":
     app()

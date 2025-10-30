@@ -1,0 +1,202 @@
+{
+    "run_id": "20251030_153133",
+    "config": {
+        "random_seed": 42,
+        "task_type": "classification",
+        "data": {
+            "path": "data/data_cleaned.csv",
+            "target_col": "satisfaction",
+            "test_size": 0.2,
+            "schema": {
+                "numerical_cols": [
+                    "Age",
+                    "Flight Distance",
+                    "Inflight wifi service",
+                    "Departure/Arrival time convenient",
+                    "Ease of Online booking",
+                    "Gate location",
+                    "Food and drink",
+                    "Online boarding",
+                    "Seat comfort",
+                    "Inflight entertainment",
+                    "On-board service",
+                    "Leg room service",
+                    "Baggage handling",
+                    "Checkin service",
+                    "Inflight service",
+                    "Cleanliness",
+                    "Departure Delay in Minutes",
+                    "Arrival Delay in Minutes"
+                ],
+                "categorical_cols": [
+                    "Gender",
+                    "Customer Type",
+                    "Type of Travel",
+                    "Class"
+                ],
+                "max_null_percentage": 0.3
+            },
+            "report_path": "outputs/data_report.txt"
+        },
+        "preprocessing": {
+            "use_pca": true,
+            "pca_variance_target": 0.95
+        },
+        "supervised": {
+            "cv_metric": "roc_auc",
+            "cv_folds": 5,
+            "random_search_iterations": 10,
+            "run_random_search": false,
+            "run_grid_search": true,
+            "models": {
+                "baseline": {
+                    "model_name": "LogisticRegression",
+                    "params": {
+                        "random_search_space": {
+                            "model__C": [
+                                0.01,
+                                0.1,
+                                0.5,
+                                1,
+                                5,
+                                10,
+                                50,
+                                100
+                            ],
+                            "model__solver": [
+                                "liblinear"
+                            ],
+                            "model__penalty": [
+                                "l1",
+                                "l2"
+                            ]
+                        },
+                        "grid_search_space": {
+                            "model__C": [
+                                80,
+                                100,
+                                120,
+                                150
+                            ],
+                            "model__solver": [
+                                "liblinear"
+                            ],
+                            "model__penalty": [
+                                "l2"
+                            ]
+                        }
+                    }
+                },
+                "random_forest": {
+                    "model_name": "RandomForestClassifier",
+                    "use_class_weight": true,
+                    "params": {
+                        "random_search_space": {
+                            "model__n_estimators": [
+                                100,
+                                200,
+                                300
+                            ],
+                            "model__max_depth": [
+                                5,
+                                10,
+                                20,
+                                null
+                            ],
+                            "model__max_features": [
+                                "sqrt",
+                                "log2"
+                            ],
+                            "model__min_samples_leaf": [
+                                1,
+                                2,
+                                4
+                            ]
+                        },
+                        "grid_search_space": {
+                            "model__n_estimators": [
+                                90,
+                                100,
+                                110
+                            ],
+                            "model__max_depth": [
+                                20,
+                                30,
+                                null
+                            ],
+                            "model__max_features": [
+                                "sqrt"
+                            ],
+                            "model__min_samples_leaf": [
+                                1,
+                                2
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "unsupervised": {
+            "k_range": [
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8
+            ],
+            "k": 2
+        }
+    },
+    "kmeans": {
+        "optimal_k": 2,
+        "metrics": {
+            "k": [
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8
+            ],
+            "inertia": [
+                1594425.1047160402,
+                1477302.3747713645,
+                1377393.468945072,
+                1310551.1993480832,
+                1253065.7253716402,
+                1217586.180600764,
+                1184082.001466227
+            ],
+            "silhouette": [
+                0.13796409359744247,
+                0.1267326730130653,
+                0.10933708580908666,
+                0.11163026810339252,
+                0.11127363437098403,
+                0.1058566676042763,
+                0.09906720997718635
+            ],
+            "calinski_harabasz": [
+                15227.93187020159,
+                11929.679480059141,
+                10794.054169148687,
+                9702.377974917685,
+                8977.077779868832,
+                8153.58609531533,
+                7564.967667640366
+            ],
+            "davies_bouldin": [
+                2.421665276701118,
+                2.4197922053235996,
+                2.358493619622533,
+                2.180640516054467,
+                2.115337677161395,
+                2.254785309561077,
+                2.2817939765771156
+            ]
+        }
+    }
+}

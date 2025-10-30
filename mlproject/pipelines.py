@@ -22,7 +22,7 @@ def create_preprocessor(numerical_features: list[str], categorical_features: lis
         transformers=[
             ('num', numerical_transformer, numerical_features),
             ('cat', categorical_transformer, categorical_features)
-        ], remainder='passthrough'
+        ], remainder='drop'
     )
 
     steps = [('preprocessor', preprocessor)]

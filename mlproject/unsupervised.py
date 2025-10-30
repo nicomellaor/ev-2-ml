@@ -39,13 +39,16 @@ def get_cluster_centroids(kmeans_pipeline: Pipeline, feature_names: list[str]) -
     
     # Desescalar los centroides a las características originales
     try:
+        # Extraer el ColumnTransformer del preprocesador
+        column_transformer = preprocessor.named_steps['preprocessor']
+
         # Desescalar númericas y descodificar categóricas
-        centroids_original = preprocessor.inverse_transform(centroids_scaled)
+        centroids_original = column_transformer.inverse_transform(centroids_scaled)
 
         # Crear DataFrame con nombres de columnas originales
         df_centroids = pd.DataFrame(centroids_original, columns=feature_names)
 
-    except (ValueError, AttributeError) as e:
+    except (ValueError, AttributeError, KeyError) as e:
         print(f"No se pudo invertir la transformación de los centroides: {e}")
         try:
             # Obtener nombres de columnas transformadas

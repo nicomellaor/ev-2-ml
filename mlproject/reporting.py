@@ -53,7 +53,7 @@ def plot_kmeans_pca_2d(pca_df: pd.DataFrame, path: Path):
     plt.close(fig)
 
 def save_metrics_table(metrics: dict, path: Path):
-    df = pd.DataFrame([metrics])
+    df = pd.DataFrame(metrics)
     df.to_csv(path, index=False)
 
 def save_centroids_table(centroids_df: pd.DataFrame, path: Path):
